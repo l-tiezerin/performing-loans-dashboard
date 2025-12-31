@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: postgres_app
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "${PG_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: seed_app
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql+psycopg://app:app@db:5432/app"
+    command: python scripts/seed_db.py
+
+volumes:
+  pgdata:

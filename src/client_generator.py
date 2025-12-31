@@ -1,21 +1,19 @@
 import pandas as pd
 from faker import Faker
-import os
 
-fake = Faker(locale='en_US', seed=42)
+def client_generator():
+    Faker.seed(42)
+    fake = Faker(locale='en_US')
 
-client_id = range(1, 50_001)
-names = [fake.name() for _ in client_id]
+    client_id = range(1, 50_001)
+    names = [fake.name() for _ in client_id]
 
-df_clients = pd.DataFrame(
-    data={
+    df_clients = pd.DataFrame({
         'client_id': client_id,
         'client_name': names
-    }
-)
+    })
+    
+    return df_clients
 
-output_path = 'data/clients.csv'
-os.makedirs('data', exist_ok=True)
-
-if not os.path.exists(output_path):
-    df_clients.to_csv(output_path, index=False)
+def employee_generator():
+    return client_generator().sample(150, random_state=42).reset_index(drop=True)
