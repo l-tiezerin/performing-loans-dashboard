@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import random
 import math
-from client_generator import client_generator
+from datetime import date, timedelta
+# from client_generator import client_generator
 
 def loan_generator(clients):
     rng = np.random.default_rng(42)
@@ -25,6 +26,24 @@ def loan_generator(clients):
         for _ in range(total_loan_quantity)
     ]
 
+    years = list(range(2015, 2026))
+    weights = [y - 2015 + 1 for y in years]
+
+    dates_by_year = {}
+    for y in years:
+        start = date(y, 1, 1)
+        end = date(y, 12, 31)
+        dates_by_year[y] = [
+            start + timedelta(days=i)
+            for i in range((end - start).days + 1)
+        ]
+    
+    loan_dates_array = []
+    for _ in range(total_loan_quantity):
+        year = random.choices(years, weights=weights, k=1)[0]
+        d = random.choice(dates_by_year[year])
+        loan_dates_array.append(d.strftime('%Y-%m-%d'))
+
     df_loans = clients.copy()
     df_loans['loan_quantity'] = loan_quantity_array
     df_loans = (
@@ -34,7 +53,8 @@ def loan_generator(clients):
     )
     df_loans['loan_id'] = loan_id_array
     df_loans['loan_amount'] = loan_amount_array
+    df_loans['loan_date'] = loan_dates_array
 
-    return print(df_loans, df_loans['loan_amount'].describe())
+    return df_loans
 
 loan_generator(pd.DataFrame({'id': np.arange(1, 50_001)}))
