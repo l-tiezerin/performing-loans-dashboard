@@ -53,8 +53,27 @@ def loan_generator(clients):
     )
     df_loans['loan_id'] = loan_id_array
     df_loans['loan_amount'] = loan_amount_array
-    df_loans['loan_date'] = loan_dates_array
+    df_loans['loan_date'] = pd.to_datetime(loan_dates_array)
 
-    return df_loans
+    df_performing_loans = df_loans[['loan_id', 'loan_date']].copy()
+    calendar = pd.DataFrame({'snapshot_date': pd.date_range('2015-01-31', '2025-12-31', freq='ME')})
+    df_performing_loans = df_performing_loans.merge(calendar, how='cross')
+    start_month = (
+        df_performing_loans['loan_date']
+        .dt.to_period('M')
+        .dt.to_timestamp('M')
+    )
+    df_performing_loans = (
+        df_performing_loans[df_performing_loans['snapshot_date'] >= start_month]
+        .reset_index(drop=True)
+        .drop('loan_date', axis=1)
+    )
+    total_snapshots_quantity = df_performing_loans.shape[0]
+    df_performing_loans['npl_flag'] = rng.choice([0, 1], size=total_snapshots_quantity, p=[.9, .1])
+    df_performing_loans = df_performing_loans[['snapshot_date', 'loan_id', 'npl_flag']]
 
-loan_generator(pd.DataFrame({'id': np.arange(1, 50_001)}))
+    return df_loans, df_performing_loans
+
+df_loans, df_performing_loans = loan_generator(pd.DataFrame({'client_id': np.arange(1, 50_001)}))
+print(df_loans.head())
+print(df_performing_loans)
