@@ -44,7 +44,7 @@ def loan_generator(clients):
         d = random.choice(dates_by_year[year])
         loan_dates_array.append(d.strftime('%Y-%m-%d'))
 
-    df_loans = clients.copy()
+    df_loans = clients[['client_id']].copy()
     df_loans['loan_quantity'] = loan_quantity_array
     df_loans = (
         df_loans.loc[df_loans.index.repeat(df_loans['loan_quantity'])]
@@ -74,6 +74,6 @@ def loan_generator(clients):
 
     return df_loans, df_performing_loans
 
-df_loans, df_performing_loans = loan_generator(pd.DataFrame({'client_id': np.arange(1, 50_001)}))
-print(df_loans.head())
-print(df_performing_loans)
+# df_loans, df_performing_loans = loan_generator(pd.DataFrame({'client_id': np.arange(1, 50_001)}))
+# print(df_loans.head())
+# print(df_performing_loans)

@@ -16,4 +16,9 @@ def client_generator():
     return df_clients
 
 def employee_generator():
-    return client_generator().sample(150, random_state=42).reset_index(drop=True)
+    return (
+        client_generator()
+        .sample(150, random_state=42)
+        .reset_index(drop=True)
+        .rename(columns={'client_name': 'employee_name'})
+    )
